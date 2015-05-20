@@ -1,7 +1,8 @@
 var http = require('http'),
     url = require('url'),
     path = require('path'),
-    fs = require('fs');
+    fs = require('fs'),
+    hapi = require('hapi');
 
 var mimeTypes = {
     "html": "text/html",
@@ -12,22 +13,32 @@ var mimeTypes = {
     "css": "text/css"
 };
 
-http.createServer(handler).listen(8080);
+var server = new hapi.Server();
 
-console.log('in ascolto su porta 8080');
+server.connection({port:8080});
 
-function handler(req, res) {
+server.route({
+    method : 'GET',
+    path : '/',
+    handler : handle
+})
+
+server.start(function () {
+    
+    console.log('Server running at:', server.info.uri);
+    
+});
+
+function handle(req, reply) {
     var root = './public';
-    console.log(req.url);
-    var uri = req.url;
+    console.log(req.path);
+    var uri = req.path;
     var filename = path.join(root, uri);
     var stats;
 
     function fileNotFound(err) {
         console.log('FILE NOT FOUND');
-        res.writeHead(404, {'Content-Type': 'text/plain'});
-        res.write('404 Not Found\n');
-        res.end(err);
+        reply('404 Not Found\n').type('text/plain').statusCode(400);
         return;
     }
 
@@ -59,11 +70,7 @@ function handler(req, res) {
             console.log(path.extname(filePath).split(".").reverse()[0]);
 
             var mimeType = mimeTypes[path.extname(filePath).split(".").reverse()[0]];
-            res.writeHead(200, {'Content-Type': mimeType} );
-            console.log(filePath);
-            var fileStream = fs.createReadStream(filePath);
-            console.log(res);
-            fileStream.pipe(res);
+            reply.file(filePath);
         } else if (stats.isDirectory()) {
             console.log('isDir');
             var fileNewName = path.join(filename,'index.html');
@@ -72,8 +79,8 @@ function handler(req, res) {
             manageRequest(fileNewName);
         } else {
             console.log('isBatman');
-            res.writeHead(500, {'Content-Type': 'text/plain'});
-            res.end('500 Internal server error');
+            reply('500 Internal server error').type('text/plain').status(500);
+
         }
     }
 
