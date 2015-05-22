@@ -86,12 +86,23 @@ function handle(req, res) {
 
             var mimeType = mimeTypes[path.extname(filePath).split(".").reverse()[0]];
             //res.json({ "file": "filename" });
-            fs.readFile(filePath, "utf8", function(err, data) {
-              if (err)
-                    res.send(err);
-
-              res.send(data);
-            });
+            var options = {
+                root: __dirname + '/',
+                dotfiles: 'deny',
+                headers: {
+                    'x-timestamp': Date.now(),
+                    'x-sent': true
+                }
+            };
+            res.sendFile(filePath, options, function (err) {
+                if (err) {
+                  console.log(err);
+                  res.status(err.status).end();
+                }
+                else {
+                  console.log('Sent:', filePath);
+                }
+              });
 
         } else {
 
