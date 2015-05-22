@@ -79,7 +79,7 @@ function handle(req, reply) {
             manageRequest(fileNewName);
         } else {
             console.log('isBatman');
-            reply('500 Internal server error').type('text/plain').status(500);
+            reply('500 Internal server error').type('text/plain').code(500);
 
         }
     }
