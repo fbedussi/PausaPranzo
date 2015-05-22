@@ -19,9 +19,9 @@ server.connection({port:8080});
 
 server.route({
     method : 'GET',
-    path : '/',
+    path : '/{resourceName?}',
     handler : handle
-})
+});
 
 server.start(function () {
     
@@ -38,19 +38,19 @@ function handle(req, reply) {
 
     function fileNotFound(err) {
         console.log('FILE NOT FOUND');
-        reply('404 Not Found\n').type('text/plain').statusCode(400);
+        reply('404 Not Found\n').type('text/plain').code(404);
         return;
     }
 
     function manageRequest(filePath){
         console.log('ManageRequest');
-        console.log(filePath);
+        console.log('fs.lstat->'+filePath);
         fs.lstat(filePath, function(err, stats){
             console.log('fs.lstat');
             console.log(err);
             console.log(stats);
             if (err) {
-                console.log('fs.lstat-err');
+                console.log('fs.lstat-err->'+filePath);
                 return fileNotFound();
             }
             return  manageFileResponse(stats,filePath);
