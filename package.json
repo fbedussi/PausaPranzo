@@ -17,6 +17,9 @@
     "url": "https://github.com/NerdCommunity/PausaPranzo/issues"
   },
   "homepage": "https://github.com/NerdCommunity/PausaPranzo",
+  "dependencies": {
+    "express": "^4.12.4"
+  },
   "devDependencies": {
     "hapi": "^8.4.0"
   }
