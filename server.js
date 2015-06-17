@@ -19,13 +19,24 @@ var server = new express();
 // parse application/x-www-form-urlencoded
 server.use(bodyParser.urlencoded({ extended: true }));
 
-// Create our Express router
-var router = express.Router();
 
-router.route("/:resourceName?").get(handle);
+server.get("/", function(req, res) {
+    res.send("welcome to /");
+});
 
-// Register all our routes
-server.use(router);
+
+//rotte di base per il menu
+server.get("/menu", function(req, res) {
+    var test = { "ciao": "miao" };
+    res.send(test);
+});
+server.get("/menu/:date", function(req, res) {
+    res.send("menu di "+req.params.date);
+});
+server.get("/menu/:date/:dish", function(req, res) {
+    res.send("menu di "+req.params.date+" portata: "+req.params.dish);
+});
+
 
 // Start the server
 server.listen(8080, function () {
