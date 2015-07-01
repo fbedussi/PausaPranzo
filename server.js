@@ -3,15 +3,11 @@ var http = require("http"),
     path = require("path"),
     fs = require("fs"),
     express = require("express"),
-    bodyParser = require("body-parser");
+    bodyParser = require("body-parser"),
+    moment = require("moment");
 
-var mimeTypes = {
-    "html": "text/html",
-    "jpeg": "image/jpeg",
-    "jpg": "image/jpeg",
-    "png": "image/png",
-    "js": "text/javascript",
-    "css": "text/css"
+var config = {
+    "dataDir": "/data"
 };
 
 var server = new express();
@@ -27,9 +23,29 @@ server.get("/", function(req, res) {
 
 //rotte di base per il menu
 server.get("/menu", function(req, res) {
-    var test = { "ciao": "miao" };
-    res.send(test);
+
+    var filename = "\\"+moment().format('YYYY_MM_DD') + ".json";
+
+    var options = {
+        root: path.join(__dirname, config.dataDir),
+        dotfiles: 'deny',
+        headers: {
+            'x-timestamp': Date.now(),
+            'x-sent': true
+        }
+    };
+    res.sendFile(filename, options, function (err) {
+        if (err) {
+          console.log(err);
+          res.status(err.status).end();
+        }
+        else {
+          console.log('Sent:', filename);
+        }
+    }); 
+
 });
+
 server.get("/menu/:date", function(req, res) {
     res.send("menu di "+req.params.date);
 });
