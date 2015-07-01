@@ -7,7 +7,8 @@ var http = require("http"),
     moment = require("moment");
 
 var config = {
-    "dataDir": "/data"
+    "dataDir": "/data",
+    "dateFormat": "YYYY_MM_DD"
 };
 
 var server = new express();
@@ -24,10 +25,40 @@ server.get("/", function(req, res) {
 //rotte di base per il menu
 server.get("/menu", function(req, res) {
 
-    var filename = "\\"+moment().format('YYYY_MM_DD') + ".json";
+   var filename = "\\" + moment().format(config.dateFormat) + ".json";
 
+   serveFile(config.dataDir, filename, res);
+
+});
+
+server.get("/menu/:date", function(req, res) {
+
+    var date = req.params.date;
+    validateDate(date);
+
+    var filename = "\\" + date + ".json";
+
+    serveFile(config.dataDir, filename, res);
+
+});
+
+server.get("/menu/:date/:dish", function(req, res) {
+    res.send("menu di "+req.params.date+" portata: "+req.params.dish);
+});
+
+
+// Start the server
+server.listen(8080, function () {
+    console.log("Express server listening on port 8080");
+});
+
+function validateDate(date) {
+    return /\d{4}_\d{2}_\d{2}/.test(date) && moment(date, config.dateFormat);
+}
+
+function serveFile(directory, filename, res) {
     var options = {
-        root: path.join(__dirname, config.dataDir),
+        root: path.join(__dirname, directory),
         dotfiles: 'deny',
         headers: {
             'x-timestamp': Date.now(),
@@ -42,114 +73,5 @@ server.get("/menu", function(req, res) {
         else {
           console.log('Sent:', filename);
         }
-    }); 
-
-});
-
-server.get("/menu/:date", function(req, res) {
-    res.send("menu di "+req.params.date);
-});
-server.get("/menu/:date/:dish", function(req, res) {
-    res.send("menu di "+req.params.date+" portata: "+req.params.dish);
-});
-
-
-// Start the server
-server.listen(8080, function () {
-    console.log("Express server listening on port 8080");
-});
-
-function handle(req, res) {
-    var root = "./public";
-    console.log(req.path);
-    var uri = req.path;
-    var filename = path.join(root, uri);
-    var stats;
-
-    function fileNotFound(err) {
-        console.log("FILE NOT FOUND");
-        //reply("404 Not Found\n").type("text/plain").code(404);
-
-        res.sendStatus(404);
-        return;
-    }
-
-    function manageRequest(filePath){
-        console.log("ManageRequest");
-        console.log("fs.lstat->"+filePath);
-        fs.lstat(filePath, function(err, stats){
-            console.log("fs.lstat");
-            console.log(err);
-            console.log(stats);
-            if (err) {
-                console.log("fs.lstat-err->"+filePath);
-                return fileNotFound();
-            }
-            return  manageFileResponse(stats,filePath);
-        });
-    }
-
-    function manageFileResponse(stats,filePath) {
-        console.log("manageFileResponse");
-        var stats = stats;
-
-        if (stats.isDirectory()) {
-
-            console.log("isDir");
-            var fileNewName = path.join(filename, "index.html");
-
-            //Se è una directory provo a fornire index.html come file di default da cercare e riparto
-            manageRequest(fileNewName);
-
-        } else if (stats.isFile()) {
-
-            console.log("isFile");
-            console.log(filePath);
-            //controllo il mimeType che ho mappato precedentemente
-            console.log(path.extname(filePath));
-            console.log(path.extname(filePath).split("."));
-            console.log(path.extname(filePath).split(".").reverse());
-            console.log(path.extname(filePath).split(".").reverse()[0]);
-
-            var mimeType = mimeTypes[path.extname(filePath).split(".").reverse()[0]];
-            //res.json({ "file": "filename" });
-            var options = {
-                root: __dirname + '/',
-                dotfiles: 'deny',
-                headers: {
-                    'x-timestamp': Date.now(),
-                    'x-sent': true
-                }
-            };
-            res.sendFile(filePath, options, function (err) {
-                if (err) {
-                  console.log(err);
-                  res.status(err.status).end();
-                }
-                else {
-                  console.log('Sent:', filePath);
-                }
-              });
-
-        } else {
-
-            console.log("isBatman");
-            //reply("500 Internal server error").type("text/plain").status(500);
-            res.sendStatus(500);
-
-        }
-    }
-
-    //Inizia qui
-    try {
-        manageRequest(filename);
-
-    } catch (err) {
-        fileNotFound()
-    }
-
-
-
-
-
+    });
 }
