@@ -42,8 +42,32 @@ server.get("/menu/:date", function(req, res) {
 
 });
 
-server.get("/menu/:date/:dish", function(req, res) {
-    res.send("menu di "+req.params.date+" portata: "+req.params.dish);
+server.get("/menu/:date/:helping", function(req, res) {
+
+    var date = req.params.date;
+    validateDate(date);
+
+    var filename = "\\" + date + ".json";
+    var filePath = path.join(__dirname, "data",  filename);
+    console.log("fs.lstat->"+filePath);
+
+    fs.readFile(filePath, "utf8", function(err, data) {
+      if (err)
+            res.send(err);
+
+        var menu = JSON.parse(data);
+        var helping = menu[req.params.helping];
+console.log(helping);
+        if(typeof helping !== "undefined") {
+            console.log("ok");
+            res.send(helping); return true;
+        }
+        else {
+            res.status(404).send({ error: 'Not found' });
+        }
+
+    });
+    
 });
 
 
