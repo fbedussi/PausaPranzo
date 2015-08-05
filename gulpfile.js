@@ -1,4 +1,5 @@
 var gulp = require('gulp'),
+    livereload = require('gulp-livereload'),
     spawn = require('child_process').spawn,
     node;
 
@@ -19,19 +20,28 @@ gulp.task('server', function() {
 });
 
 /**
+ * $ gulp livereload
+ * description: notify livereload to plugins
+ */
+
+gulp.task('livereload', function() {
+    livereload.reload();
+});
+
+/**
  * $ gulp watch
  * description: watch changes and reload server
  */
 
 gulp.task('watch', function() {
-  gulp.watch(['server.js'], ['server']);
+    livereload.listen({ basePath: './' });
+    gulp.watch(['server.js'], ['server', 'livereload']);
 });
-
 /**
  * $ gulp
  * description: start the development environment
  */
-gulp.task('default', ['server', 'watch']);
+gulp.task('default', ['server', 'watch'])   ;
 
 // clean up if an error goes unhandled.
 process.on('exit', function() {
