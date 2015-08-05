@@ -24,8 +24,7 @@ gulp.task('server', function() {
  */
 
 gulp.task('watch', function() {
-  var server = ['server'];
-  gulp.watch(['server.js'], server);
+  gulp.watch(['server.js'], ['server']);
 });
 
 /**
