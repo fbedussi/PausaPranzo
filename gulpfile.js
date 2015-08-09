@@ -1,4 +1,5 @@
-var gulp = require('gulp'),
+var jshint = require('gulp-jshint'),
+    gulp = require('gulp'),
     livereload = require('gulp-livereload'),
     spawn = require('child_process').spawn,
     node;
@@ -29,19 +30,31 @@ gulp.task('livereload', function() {
 });
 
 /**
+ * $ gulp jshint
+ * description: Chekc bad javascript code
+ */
+
+gulp.task('jshint', function() {
+  return gulp.src('./*.js')
+      .pipe(jshint('.jshintrc'))
+      .pipe(jshint.reporter('jshint-stylish'));
+});
+
+/**
  * $ gulp watch
  * description: watch changes and reload server
  */
 
 gulp.task('watch', function() {
     livereload.listen({ basePath: './' });
-    gulp.watch(['server.js'], ['server', 'livereload']);
+    gulp.watch(['*.js'], ['jshint']);
+    gulp.watch(['server.js'], ['jshint', 'server', 'livereload']);
 });
 /**
  * $ gulp
  * description: start the development environment
  */
-gulp.task('default', ['server', 'watch'])   ;
+gulp.task('default', ['jshint', 'server', 'watch'])   ;
 
 // clean up if an error goes unhandled.
 process.on('exit', function() {
