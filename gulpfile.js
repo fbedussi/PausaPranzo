@@ -2,7 +2,8 @@ var jshint = require('gulp-jshint'),
     gulp = require('gulp'),
     livereload = require('gulp-livereload'),
     spawn = require('child_process').spawn,
-    node;
+    node,
+    jasmine = require('gulp-jasmine');
 
 // Based on: https://gist.github.com/webdesserts/5632955
 
@@ -50,6 +51,24 @@ gulp.task('watch', function() {
     gulp.watch(['*.js'], ['jshint']);
     gulp.watch(['server.js'], ['jshint', 'server', 'livereload']);
 });
+
+/**
+ * $ gulp test
+ * description: tO DO
+ */
+
+gulp.task('test', ['server'], function() {
+
+  setTimeout(function () {
+
+    gulp.src('spec/test.js')
+      .pipe(jasmine());
+
+  }, 2000);
+
+});
+
+
 /**
  * $ gulp
  * description: start the development environment
