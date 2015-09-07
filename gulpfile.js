@@ -13,7 +13,7 @@ var jshint = require('gulp-jshint'),
  */
 gulp.task('server', function() {
   if (node) node.kill()
-  node = spawn('node', ['server.js'], {stdio: 'inherit'})
+  node = spawn('node', ['server/server.js'], {stdio: 'inherit'})
   node.on('close', function (code) {
     if (code === 8) {
       gulp.log('Error detected, waiting for changes...');
@@ -36,7 +36,7 @@ gulp.task('livereload', function() {
  */
 
 gulp.task('jshint', function() {
-  return gulp.src('./*.js')
+  return gulp.src('./server/*.js')
       .pipe(jshint('.jshintrc'))
       .pipe(jshint.reporter('jshint-stylish'));
 });
@@ -48,8 +48,8 @@ gulp.task('jshint', function() {
 
 gulp.task('watch', function() {
     livereload.listen({ basePath: './' });
-    gulp.watch(['*.js'], ['jshint']);
-    gulp.watch(['server.js'], ['jshint', 'server', 'livereload']);
+    gulp.watch(['server/*.js'], ['jshint']);
+    gulp.watch(['server/**/*.js'], ['jshint', 'server', 'livereload']);
 });
 
 /**
