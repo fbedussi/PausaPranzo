@@ -1,5 +1,4 @@
 var path = require("path"),
-    fs = require("fs"),
     express = require("express"),
     bodyParser = require("body-parser"),
     moment = require("moment");
@@ -61,7 +60,7 @@ server.get("/menu/:date/:helping", function(req, res) {
     var date = req.params.date;
     validateDate(date);
 
-    var menu = menuService.getMenu(date, req.params.helping, function (err, docs) {
+    menuService.getMenu(date, req.params.helping, function (err, docs) {
 
         if (err) {
           res.send('error');
@@ -100,24 +99,4 @@ server.listen(8080, function () {
 
 function validateDate(date) {
     return /\d{4}_\d{2}_\d{2}/.test(date) && moment(date, config.dateFormat);
-}
-
-function serveFile(directory, filename, res) {
-    var options = {
-        root: path.join(__dirname, directory),
-        dotfiles: 'deny',
-        headers: {
-            'x-timestamp': Date.now(),
-            'x-sent': true
-        }
-    };
-    res.sendFile(filename, options, function (err) {
-        if (err) {
-          console.log(err);
-          res.status(err.status).end();
-        }
-        else {
-          console.log('Sent:', filename);
-        }
-    });
 }
