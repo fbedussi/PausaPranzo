@@ -12,8 +12,8 @@ var jshint = require('gulp-jshint'),
  * description: launch the server. If there's a server already running, kill it.
  */
 gulp.task('server', function() {
-  if (node) node.kill()
-  node = spawn('node', ['server.js'], {stdio: 'inherit'})
+  if (node) node.kill();
+  node = spawn('node', ['server.js'], {stdio: 'inherit'});
   node.on('close', function (code) {
     if (code === 8) {
       gulp.log('Error detected, waiting for changes...');
@@ -80,4 +80,4 @@ process.on('exit', function() {
     if (node) {
       node.kill();
     }
-})
+});
