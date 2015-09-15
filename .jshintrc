@@ -1,5 +1,7 @@
 {
   "undef": true,
   "unused": true,
-  "predef": [ "setTimeout", "require", "process", "console", "__dirname" ]
+  "predef": [ "MYGLOBAL" ],
+  "node": true,
+  "devel": true
 }
