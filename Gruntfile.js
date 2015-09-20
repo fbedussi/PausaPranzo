@@ -8,6 +8,12 @@
  module.exports = function(grunt) {
 
   grunt.initConfig({
+  	concurrent: {
+        dev: ["nodemon", "watch"],
+        options: {
+            logConcurrentOutput: true
+        }
+    },
     jshint: {
       files: ['Gruntfile.js', './*.js'],
       options: {
@@ -16,10 +22,8 @@
     },
     watch: {
       options: {
-        livereload: true
-      },
-      html: {
-        files: ['**/*.html']
+        livereload: true,
+        nospawn: true
       },
       scripts: {
         files: ['./*.js'],
@@ -42,22 +46,43 @@
 	      cwd: __dirname + '/'
 	    }
 	  }
-	}
-/*,
-    connect: {
-      livereload: {
-        options: {
-          port: 8080,
-          middleware: function(connect, options) {
-            return[
-              require('connect-livereload')(),
-              
-              connect.directory(options.base)
-            ];
-          }
+	},
+	nodemon: {
+        dev: {
+            script: 'server.js',
+            options: {
+                /** Environment variables required by the NODE application **/
+                env: {
+                      "NODE_ENV": "development",
+                      "NODE_CONFIG": "dev"
+                },
+                watch: ["server"],
+                delay: 300,
+
+                callback: function (nodemon) {
+                    nodemon.on('log', function (event) {
+                        console.log(event.colour);
+                    });
+
+                    /** Open the application in a new browser window and is optional **/
+                    nodemon.on('config:update', function () {
+                        // Delay before server listens on port
+                        setTimeout(function() {
+                            require('open')('http://localhost:8080');
+                        }, 1000);
+                    });
+
+                    /** Update .rebooted to fire Live-Reload **/
+                    nodemon.on('restart', function () {
+                        // Delay before server listens on port
+                        setTimeout(function() {
+                            require('fs').writeFileSync('.rebooted', 'rebooted');
+                        }, 1000);
+                    });
+                }
+            }
         }
-      }
-    }*/
+    }
   });
 
 
@@ -65,9 +90,12 @@
   grunt.loadNpmTasks('grunt-contrib-watch');
   //grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-spawn');
+  grunt.loadNpmTasks("grunt-nodemon");
+  grunt.loadNpmTasks("grunt-concurrent");
 
-  grunt.registerTask("test", ["spawn:webstart"]);
-
-  grunt.registerTask('default', ['jshint', 'spawn']);
+  grunt.registerTask("spawn", ["spawn:webstart"]);
+  grunt.registerTask("nodemon", ["nodemon:dev"]);
+  
+  grunt.registerTask("default", ["concurrent:dev"]);
 
 };

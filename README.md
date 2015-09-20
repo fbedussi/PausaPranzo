@@ -2,4 +2,4 @@
 
 To launch server run from command line
 
-    gulp
+    grunt or gulp
