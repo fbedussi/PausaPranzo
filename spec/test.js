@@ -1,6 +1,6 @@
 var request = require("request");
 
-var base_url = "http://localhost:8080/"
+var base_url = "http://localhost:8080/";
 
 describe("Hello World Server", function() {
   describe("GET /", function() {
