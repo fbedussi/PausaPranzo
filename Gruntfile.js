@@ -9,13 +9,13 @@
 
   grunt.initConfig({
   	concurrent: {
-        dev: ["nodemon", "watch"],
+        dev: ["nodemon:dev", "watch"],
         options: {
             logConcurrentOutput: true
         }
     },
     jshint: {
-      files: ['Gruntfile.js', './*.js'],
+      files: ['Gruntfile.js', './*.js', 'spec/**'],
       options: {
         jshintrc: '.jshintrc',
       }
@@ -27,7 +27,7 @@
       },
       scripts: {
         files: ['./*.js'],
-        tasks: ['jshint']
+        tasks: ['jshint', 'express:dev']
       }
     },
 	// jasmine: {
@@ -38,7 +38,7 @@
 	    command: 'node',
 	    commandArgs: ['server.js','{0}'],
 	    directory: './',
-	    groupFiles: true, 
+	    groupFiles: true,
 	    passThrough: false,
 	    pattern: 'www',
 	    opts: {
@@ -49,53 +49,89 @@
 	},
 	nodemon: {
         dev: {
-            script: 'server.js',
-            options: {
-                /** Environment variables required by the NODE application **/
-                env: {
-                      "NODE_ENV": "development",
-                      "NODE_CONFIG": "dev"
-                },
-                watch: ["server"],
-                delay: 300,
+            script: './server.js',
 
-                callback: function (nodemon) {
-                    nodemon.on('log', function (event) {
-                        console.log(event.colour);
-                    });
-
-                    /** Open the application in a new browser window and is optional **/
-                    nodemon.on('config:update', function () {
-                        // Delay before server listens on port
-                        setTimeout(function() {
-                            require('open')('http://localhost:8080');
-                        }, 1000);
-                    });
-
-                    /** Update .rebooted to fire Live-Reload **/
-                    nodemon.on('restart', function () {
-                        // Delay before server listens on port
-                        setTimeout(function() {
-                            require('fs').writeFileSync('.rebooted', 'rebooted');
-                        }, 1000);
-                    });
-                }
-            }
         }
+    },
+
+    jasmine_nodejs: {
+      options: {
+        useHelpers: false,
+        stopOnFailure: false,
+        // configure one or more built-in reporters
+              reporters: {
+                  console: {
+                      colors: true,
+                      cleanStack: 1,       // (0|false)|(1|true)|2|3
+                      verbosity: 4,        // (0|false)|1|2|3|(4|true)
+                      listStyle: "indent", // "flat"|"indent"
+                      activity: false
+                  },
+                  // junit: {
+                  //     savePath: "./reports",
+                  //     filePrefix: "junit-report",
+                  //     consolidate: true,
+                  //     useDotNotation: true
+                  // },
+                  // nunit: {
+                  //     savePath: "./reports",
+                  //     filename: "nunit-report.xml",
+                  //     reportName: "Test Results"
+                  // },
+                  // terminal: {
+                  //     color: false,
+                  //     showStack: false,
+                  //     verbosity: 2
+                  // },
+                  // teamcity: true,
+                  // tap: true
+              }
+      },
+      dev: {
+            // spec files
+            specs: [
+                "spec/**"
+            ]
+        }
+    },
+
+    express: {
+      options: {
+        // Override defaults here
+      },
+      dev: {
+        options: {
+          script: './server.js'
+        }
+      },
+      prod: {
+        options: {
+          script: './server.js',
+          node_env: 'production'
+        }
+      },
+      test: {
+        options: {
+          script: './server.js'
+        }
+      }
     }
   });
 
-
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  //grunt.loadNpmTasks('grunt-contrib-jasmine');
+  grunt.loadNpmTasks('grunt-jasmine-nodejs');
   grunt.loadNpmTasks('grunt-spawn');
   grunt.loadNpmTasks("grunt-nodemon");
   grunt.loadNpmTasks("grunt-concurrent");
+  grunt.loadNpmTasks('grunt-express-server');
 
   grunt.registerTask("spawn", ["spawn:webstart"]);
   grunt.registerTask("nodemon", ["nodemon:dev"]);
-  
+  grunt.registerTask("test", ['jshint', "express:dev", "jasmine_nodejs:dev"]);
+
   grunt.registerTask("default", ["concurrent:dev"]);
+
+  grunt.registerTask("serve", ["express:dev", "watch"]);
 
 };

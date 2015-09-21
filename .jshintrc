@@ -1,7 +1,7 @@
 {
   "undef": true,
   "unused": true,
-  "predef": [ "MYGLOBAL" ],
+  "predef": [ "describe", "it", "expect" ],
   "node": true,
   "devel": true
 }
