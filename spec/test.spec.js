@@ -17,7 +17,7 @@ describe("Homepage", function() {
 describe("Menu API", function() {
   describe("GET /menu", function() {
     it("returns status code 200", function(done) {
-      request.get(base_url, function(error, response, body) {
+      request.get(base_url + 'menu', function(error, response, body) {
 
         var today = moment().format('YYYY_MM_DD');
 
