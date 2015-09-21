@@ -5,7 +5,8 @@ var menu = {
 
   getMenu: function () {
 
-    var q = { date: arguments[0] };
+    var cb,
+        q = { date: arguments[0] };
 
     if (arguments.length > 2 && typeof arguments[1] === 'string') {
       q.type = arguments[1];
