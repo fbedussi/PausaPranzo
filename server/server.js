@@ -1,18 +1,13 @@
 var express = require("express"),
     bodyParser = require("body-parser"),
-    moment = require("moment");
+    moment = require("moment"),
+    config = require('../conf/config');
 
 // Services
-
 var menuService = require('./services/menu.js');
 
 // populate
 menuService.populate();
-
-var config = {
-    "dataDir": "/data",
-    "dateFormat": "YYYY_MM_DD"
-};
 
 var server = new express();
 
@@ -96,6 +91,7 @@ server.listen(8080, function () {
     console.log("Express server listening on port 8080");
 });
 
+// TODO
 function validateDate(date) {
     return /\d{4}_\d{2}_\d{2}/.test(date) && moment(date, config.dateFormat);
 }
