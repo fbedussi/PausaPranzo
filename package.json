@@ -38,6 +38,7 @@
     "grunt-nodemon": "^0.4.0",
     "grunt-spawn": "^1.1.72",
     "jshint-stylish": "^2.0.1",
+    "lodash": "^3.10.1",
     "open": "0.0.5"
   }
 }
