@@ -1,3 +1,33 @@
+!.gitkeep
+
+# OS generated files #
+######################
+*/.DS_Store
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+run.sh
+runTest.sh
+dump.rdb
+
+/bower_components/
+!src/vendor/_custom
+/src/vendor
+/public
+
+!src/uploads/tmp/.gitkeep
+src/uploads/*
+backend/wiki
+backend/rest/restaurant/data/*
+
+.sass-cache
+.eyeglass_cache
+.idea
+
 # Logs
 logs
 *.log
