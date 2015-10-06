@@ -1,0 +1,24 @@
+{
+   "restartable": "rs",
+   "verbose": false,
+   "ignore" : [
+      ".eyeglass_cache",
+      ".sass-cache",
+      "grunt",
+      "logs",
+      "node_modules",
+      "public",
+      "src",
+      ".git",
+      ".idea",
+      ".bowerrc",
+      ".editorconfig",
+      ".jshintignore",
+      ".gitignore",
+      "Gruntfile.js",
+      "README.md"
+   ],
+   "env": {
+      "NODE_ENV" : "development"
+   }
+}
