@@ -1,137 +1,117 @@
-/*
+/**
  * PausaPranzo
  * https://github.com/NerdCommunity/PausaPranzo
  *
  * Copyright (c) 2014 NerdCommunity
- * Licensed under the MIT license.
+ * Licensed under the ISC license.
  */
  module.exports = function(grunt) {
+   'use strict';
 
-  grunt.initConfig({
-  	concurrent: {
-        dev: ["nodemon:dev", "watch"],
-        options: {
-            logConcurrentOutput: true
-        }
-    },
-    jshint: {
-      files: ['Gruntfile.js', './*.js', 'spec/**'],
-      options: {
-        jshintrc: '.jshintrc',
-      }
-    },
-    watch: {
-      options: {
-        livereload: true,
-        nospawn: true
-      },
-      scripts: {
-        files: ['./*.js'],
-        tasks: ['jshint', 'express:dev']
-      }
-    },
-	// jasmine: {
-	// 	src: 'spec/test.js'
-	// },
-	spawn: {
-	  webstart: {
-	    command: 'node',
-	    commandArgs: ['server.js','{0}'],
-	    directory: './',
-	    groupFiles: true,
-	    passThrough: false,
-	    pattern: 'www',
-	    opts: {
-	      stdio: 'inherit',
-	      cwd: __dirname + '/'
-	    }
-	  }
-	},
-	nodemon: {
-        dev: {
-            script: './server.js',
+   // TASKS
+   grunt.task.registerTask('deploy', [
+     'frontend'
+   ]);
 
-        }
-    },
+   grunt.task.registerTask('deployProd', [
+     'shell:deployProduction'
+   ]);
 
-    jasmine_nodejs: {
-      options: {
-        useHelpers: false,
-        stopOnFailure: false,
-        // configure one or more built-in reporters
-              reporters: {
-                  console: {
-                      colors: true,
-                      cleanStack: 1,       // (0|false)|(1|true)|2|3
-                      verbosity: 4,        // (0|false)|1|2|3|(4|true)
-                      listStyle: "indent", // "flat"|"indent"
-                      activity: false
-                  },
-                  // junit: {
-                  //     savePath: "./reports",
-                  //     filePrefix: "junit-report",
-                  //     consolidate: true,
-                  //     useDotNotation: true
-                  // },
-                  // nunit: {
-                  //     savePath: "./reports",
-                  //     filename: "nunit-report.xml",
-                  //     reportName: "Test Results"
-                  // },
-                  // terminal: {
-                  //     color: false,
-                  //     showStack: false,
-                  //     verbosity: 2
-                  // },
-                  // teamcity: true,
-                  // tap: true
-              }
-      },
-      dev: {
-            // spec files
-            specs: [
-                "spec/**"
-            ]
-        }
-    },
+   grunt.registerTask("spawn", [
+     "spawn:webstart"
+   ]);
 
-    express: {
-      options: {
-        // Override defaults here
-      },
-      dev: {
-        options: {
-          script: './server.js'
-        }
-      },
-      prod: {
-        options: {
-          script: './server.js',
-          node_env: 'production'
-        }
-      },
-      test: {
-        options: {
-          script: './server.js'
-        }
-      }
-    }
-  });
+   grunt.registerTask("default", [
+     "concurrent:dev"
+   ]);
 
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-jasmine-nodejs');
-  grunt.loadNpmTasks('grunt-spawn');
-  grunt.loadNpmTasks("grunt-nodemon");
-  grunt.loadNpmTasks("grunt-concurrent");
-  grunt.loadNpmTasks('grunt-express-server');
+   grunt.registerTask("serve", [
+     "express:dev",
+     "watch:backend"
+   ]);
 
-  grunt.registerTask("spawn", ["spawn:webstart"]);
-  grunt.registerTask("nodemon", ["nodemon:dev"]);
-  grunt.registerTask("test", ['jshint', "express:dev", "jasmine_nodejs:dev"]);
+   grunt.registerTask("nodemon", [
+     "nodemon:dev"
+   ]);
 
-  grunt.registerTask("default", ["concurrent:dev"]);
+   grunt.registerTask("test", [
+     "jshint:backend",
+     "express:dev",
+     "jasmine_nodejs:dev"
+   ]);
 
-  grunt.registerTask("serve", ["express:dev", "watch"]);
+   grunt.registerTask("default", [
+     "concurrent:dev"
+   ]);
 
+   grunt.registerTask("serve", [
+     "express:dev",
+     "watch:backend"
+   ]);
+
+
+
+
+   /* *** INITIALIZE CONFIGURATION *** */
+   var ENV_PRODUCTION = /^production$/i.test(grunt.option('ENV'));
+   var pkg = grunt.file.readJSON('./package.json');
+   var frontendConfigs = 'default';
+
+   if(ENV_PRODUCTION) {
+     frontendConfigs = 'production';
+     grunt.log.ok('Grunt Running in PRODUCTION environment');
+   }
+
+   frontendConfigs = require('./conf/' + frontendConfigs + '.frontend.js');
+
+   require('load-grunt-config')(grunt, {
+     init: true,
+     jitGrunt: {
+       staticMappings: {
+         "ngtemplates" : "grunt-angular-templates"
+       }
+     },
+     data: {
+       "pkg" : pkg,
+       "frontend" : frontendConfigs,
+       "ngFiles" : require('./grunt/helpers/NgFolderingPattern.js')(frontendConfigs),
+       "uniq": frontendConfigs.cacheBuster.uniq
+     }
+   });
+
+
+   // Private Tasks
+   grunt.task.registerTask('angularWatch', [
+     'newer:uglify:development',
+     'newer:ngAnnotate:modules',
+     'newer:jshint:frontend'
+   ]);
+
+   grunt.task.registerTask('sassWatch', [
+     'newer:sass:development',
+     'newer:postcss:development'
+   ]);
+
+   grunt.task.registerTask('angular', [
+     'jscs',
+     'uglify:development',
+     'ngAnnotate',
+     'jshint',
+     'ngtemplates',
+     'uglify:production',
+     'angularI18n'
+   ]);
+
+   grunt.task.registerTask('angularI18n', [
+     'shell:i18nXslxToJson'
+   ]);
+
+   grunt.task.registerTask('frontend', [
+     'clean:frontendPublicDir',
+     'angular',
+     'sass',
+     'postcss:deploy',
+     'concat',
+     'frontendIncludes'
+   ]);
 };
